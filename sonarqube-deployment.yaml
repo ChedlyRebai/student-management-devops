@@ -1,0 +1,42 @@
+# sonarqube-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarqube-service
+  namespace: devops
+spec:
+  selector:
+    app: sonarqube
+  ports:
+  - port: 9000
+    targetPort: 9000
+    nodePort: 30900
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube-deployment
+  namespace: devops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarqube
+  template:
+    metadata:
+      labels:
+        app: sonarqube
+    spec:
+      containers:
+      - name: sonarqube
+        image: sonarqube:community
+        ports:
+        - containerPort: 9000
+        env:
+        - name: SONAR_JDBC_URL
+          value: "jdbc:mysql://mysql-service:3306/sonardb?createDatabaseIfNotExist=true"
+        - name: SONAR_JDBC_USERNAME
+          value: "root"
+        - name: SONAR_JDBC_PASSWORD
+          value: "chedly"

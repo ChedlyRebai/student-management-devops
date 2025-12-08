@@ -1,0 +1,80 @@
+---
+# Service Spring Boot (NodePort)
+apiVersion: v1
+kind: Service
+metadata:
+  name: student-service
+  namespace: devops
+spec:
+  selector:
+    app: student-management
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089
+      nodePort: 30089
+  type: NodePort
+---
+# Deployment Spring Boot
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-deployment
+  namespace: devops
+spec:
+  replicas: 1  # Commencez avec 1 pour les tests
+  selector:
+    matchLabels:
+      app: student-management
+  template:
+    metadata:
+      labels:
+        app: student-management
+    spec:
+      containers:
+      - name: student-app
+        image: chedlyrebai/student-management-app:latest  # REMPLACEZ-MOI!
+        ports:
+        - containerPort: 8089
+        env:
+        # Configuration depuis ConfigMap
+        - name: SPRING_APPLICATION_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_APPLICATION_NAME
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_DATASOURCE_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: student-secret
+              key: mysql-root-password
+        - name: SPRING_JPA_SHOW_SQL
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_JPA_SHOW_SQL
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SERVER_PORT
+        - name: SERVER_SERVLET_CONTEXT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SERVER_SERVLET_CONTEXT_PATH
