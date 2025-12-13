@@ -44,6 +44,7 @@ spec:
       targetPort: 3306
   type: ClusterIP
 ---
+
 # 4. Deployment MySQL - Pod avec volume persistant
 apiVersion: apps/v1
 kind: Deployment
