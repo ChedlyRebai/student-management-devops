@@ -67,10 +67,7 @@ spec:
         image: mysql:8.0
         env:
         - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: student-secret
-              key: mysql-root-password
+          value: "root123"  # Mot de passe simple et connu
         - name: MYSQL_DATABASE
           value: "studentdb"
         ports:
