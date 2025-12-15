@@ -36,25 +36,38 @@ pipeline {
             //     }
             // }
         stage('Test with sonarqube') {
+            // environment {
+            //     SONAR_TOKEN = credentials('jenkins-sonarqube')
+            // }
+            // steps {
+            //     withSonarQubeEnv(installationName: 'sq1') {
+            //         sh 'echo $SONAR_TOKEN'
+            //         sh 'mvn sonar:sonar'
+            //         sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN'
+            //     }
+            // }
+
             environment {
-                SONAR_TOKEN = credentials('jenkins-sonarqube')
+                SONAR_TOKEN = credentials('sonar-token')
             }
-            steps {
-                withSonarQubeEnv(installationName: 'sq1') {
-                    sh 'echo $SONAR_TOKEN'
-                    sh 'mvn sonar:sonar'
-                    sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN'
-                }
-            }
-        }
-       stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                    kubectl set image deployment/student-deployment student-app=student-management:${BUILD_NUMBER} -n devops
-                    kubectl rollout status deployment/student-deployment -n devops
-                '''
+           steps {
+                sh """
+                    mvn clean verify sonar:sonar \
+                    -Dsonar.projectKey=student-management \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=$SONAR_TOKEN
+                """
             }
         }
+
+    //    stage('Deploy to Kubernetes') {
+    //         steps {
+    //             sh '''
+    //                 kubectl set image deployment/student-deployment student-app=student-management:${BUILD_NUMBER} -n devops
+    //                 kubectl rollout status deployment/student-deployment -n devops
+    //             '''
+    //         }
+    //     }
         // stage('Build Docker image') {
         //     // steps{
         //     //     sh 'docker build -t chedlyrebai/student-management-app:latest .'

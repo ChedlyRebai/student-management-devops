@@ -22,7 +22,7 @@ metadata:
   name: student-deployment
   namespace: devops
 spec:
-  replicas: 1  # Commencez avec 1 pour les tests
+  replicas: 3
   selector:
     matchLabels:
       app: student-management
@@ -33,16 +33,10 @@ spec:
     spec:
       containers:
       - name: student-app
-        image: chedlyrebai/student-management-app:latest  # REMPLACEZ-MOI!
+        image: chedlyrebai/student-management-app:latest
         ports:
         - containerPort: 8089
         env:
-        # Configuration depuis ConfigMap
-        - name: SPRING_APPLICATION_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: student-config
-              key: SPRING_APPLICATION_NAME
         - name: SPRING_DATASOURCE_URL
           valueFrom:
             configMapKeyRef:
@@ -57,17 +51,37 @@ spec:
           valueFrom:
             secretKeyRef:
               name: student-secret
-              key: mysql-root-password
-        - name: SPRING_JPA_SHOW_SQL
+              key: SPRING_DATASOURCE_PASSWORD
+        - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
           valueFrom:
             configMapKeyRef:
               name: student-config
-              key: SPRING_JPA_SHOW_SQL
+              key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+        - name: SPRING_JPA_DATABASE_PLATFORM
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_JPA_DATABASE_PLATFORM
         - name: SPRING_JPA_HIBERNATE_DDL_AUTO
           valueFrom:
             configMapKeyRef:
               name: student-config
               key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        - name: SPRING_JPA_SHOW_SQL
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_JPA_SHOW_SQL
+        - name: SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL
+        - name: SPRING_APPLICATION_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: SPRING_APPLICATION_NAME
         - name: SERVER_PORT
           valueFrom:
             configMapKeyRef:
@@ -78,3 +92,27 @@ spec:
             configMapKeyRef:
               name: student-config
               key: SERVER_SERVLET_CONTEXT_PATH
+        - name: LOGGING_LEVEL_ORG_HIBERNATE
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: LOGGING_LEVEL_ORG_HIBERNATE
+        - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_ORM_JPA
+          valueFrom:
+            configMapKeyRef:
+              name: student-config
+              key: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_ORM_JPA
+        - name: SPRING_CONFIG_LOCATION
+          value: "optional:classpath:/"
+        readinessProbe:
+          httpGet:
+            path: /student/actuator/health
+            port: 8089
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /student/actuator/health
+            port: 8089
+          initialDelaySeconds: 180
+          periodSeconds: 15
