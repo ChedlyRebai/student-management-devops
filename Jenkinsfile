@@ -50,7 +50,7 @@ pipeline {
             environment {
                 SONAR_TOKEN = credentials('sonar-token')
             }
-           steps {
+            steps {
                 sh """
                     mvn clean verify sonar:sonar \
                     -Dsonar.projectKey=student-management \
