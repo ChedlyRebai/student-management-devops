@@ -35,6 +35,11 @@ pipeline {
             //         sh 'echo "Tests executed"'
             //     }
             // }
+            stage('Build') {
+                steps {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
         stage('Test with sonarqube') {
             // environment {
             //     SONAR_TOKEN = credentials('jenkins-sonarqube')
@@ -61,14 +66,14 @@ pipeline {
             }
         }
 
-    //    stage('Deploy to Kubernetes') {
-    //         steps {
-    //             sh '''
-    //                 kubectl set image deployment/student-deployment student-app=student-management:${BUILD_NUMBER} -n devops
-    //                 kubectl rollout status deployment/student-deployment -n devops
-    //             '''
-    //         }
-    //     }
+        //    stage('Deploy to Kubernetes') {
+        //         steps {
+        //             sh '''
+        //                 kubectl set image deployment/student-deployment student-app=student-management:${BUILD_NUMBER} -n devops
+        //                 kubectl rollout status deployment/student-deployment -n devops
+        //             '''
+        //         }
+        //     }
         // stage('Build Docker image') {
         //     // steps{
         //     //     sh 'docker build -t chedlyrebai/student-management-app:latest .'
