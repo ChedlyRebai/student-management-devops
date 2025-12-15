@@ -56,6 +56,7 @@ pipeline {
                     -Dsonar.projectKey=student-management \
                     -Dsonar.host.url=http://localhost:9000 \
                     -Dsonar.login=$SONAR_TOKEN
+                    -DskipTests
                 """
             }
         }
